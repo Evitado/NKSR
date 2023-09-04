@@ -11,10 +11,19 @@ import requests
 from pathlib import Path
 from pycg import vis, exp
 from pyntcloud import PyntCloud
-
+import open3d as o3d
 
 DOWNLOAD_URL = "https://nksr.huangjh.tech"
 
+
+def load_pcd(filename):
+    #  read pcl
+    pcd = o3d.io.read_point_cloud(filename)
+    # estimate normals
+    pcd.estimate_normals()
+    xyz = np.asarray(pcd.points)
+    normals = np.asarray(pcd.normals)
+    return xyz, normals
 
 def load_bunny_example():
     bunny_path = Path(__file__).parent.parent / "assets" / "bunny.ply"
