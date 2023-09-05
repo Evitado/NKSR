@@ -11,17 +11,9 @@ import requests
 from pathlib import Path
 from pycg import vis, exp
 from pyntcloud import PyntCloud
-import open3d as o3d
 
 DOWNLOAD_URL = "https://nksr.huangjh.tech"
 
-
-def load_pcd(filename, normal_kdtree_pouints = 30):
-    #  read pcl
-    pcd = o3d.io.read_point_cloud(filename)
-    # estimate normals
-    pcd.estimate_normals(normal_kdtree_pouints)
-    return pcd
 
 def load_bunny_example():
     bunny_path = Path(__file__).parent.parent / "assets" / "bunny.ply"
@@ -76,20 +68,26 @@ def load_waymo_example():
 
     pcloud = PyntCloud.from_file(str(waymo_path))
     pdata = pcloud.points
-    xyz = np.stack([pdata['x'], pdata['y'], pdata['z']], axis=1)
-    sensor = np.stack([pdata['sensor_x'], pdata['sensor_y'], pdata['sensor_z']], axis=1)
+    xyz = np.stack([pdata["x"], pdata["y"], pdata["z"]], axis=1)
+    sensor = np.stack([pdata["sensor_x"], pdata["sensor_y"], pdata["sensor_z"]], axis=1)
     return xyz, sensor
 
 
 def warning_on_low_memory(threshold_mb: float):
-    gpu_status = exp.get_gpu_status('localhost')
+    gpu_status = exp.get_gpu_status("localhost")
     if len(gpu_status) == 0:
         exp.logger.fatal("No GPU found!")
         return
 
     gpu_status = gpu_status[0]
-    available_mb = (gpu_status.gpu_mem_total - gpu_status.gpu_mem_byte) / 1024. / 1024.
+    available_mb = (
+        (gpu_status.gpu_mem_total - gpu_status.gpu_mem_byte) / 1024.0 / 1024.0
+    )
 
     if available_mb < threshold_mb:
-        exp.logger.warning("Available GPU memory is {:.2f} MB, "
-                           "we recommend you to have more than {:.2f} MB available.".format(available_mb, threshold_mb))
+        exp.logger.warning(
+            "Available GPU memory is {:.2f} MB, "
+            "we recommend you to have more than {:.2f} MB available.".format(
+                available_mb, threshold_mb
+            )
+        )
