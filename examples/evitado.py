@@ -22,7 +22,6 @@ def load_pcd(filename):
 def get_device():
     return "cuda" if torch.cuda.is_available() else "cpu"
 
-
 @app.command()
 def main(
     filename: Annotated[Path, typer.Argument(help="provide path to filename")],
@@ -58,11 +57,16 @@ def main(
     input_xyz = torch.from_numpy(np.asarray(pcd.points)).float().to(device)
     input_normal = torch.from_numpy(np.asarray(pcd.normals)).float().to(device)
     reconstructor = nksr.Reconstructor(device)
-    field = reconstructor.reconstruct(input_xyz, input_normal, detail_level=detail_level)
-    mesh = field.extract_dual_mesh(mise_iter=1)
+    field = reconstructor.reconstruct(input_xyz, input_normal, chunk_size=50.0, detail_level=detail_level) #Not sure how to tweak chunk_size; this somehow works on my 8GB machine, consumes around ~5GB
+
+    # Put everything onto CPU.
+    field.to_("cpu")
+    reconstructor.network.to("cpu")
+
+    mesh = field.extract_dual_mesh(mise_iter=1) # This consumes ~40GB of RAM on the 777_200 pcd
+    mesh = vis.mesh(mesh.v, mesh.f)
 
     if visualize:
-        mesh = vis.mesh(mesh.v, mesh.f)
         vis.show_3d([mesh])
     if save_path:
         vis.to_file(mesh, str(save_path))
