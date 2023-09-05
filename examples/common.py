@@ -16,14 +16,12 @@ import open3d as o3d
 DOWNLOAD_URL = "https://nksr.huangjh.tech"
 
 
-def load_pcd(filename):
+def load_pcd(filename, normal_kdtree_pouints = 30):
     #  read pcl
     pcd = o3d.io.read_point_cloud(filename)
     # estimate normals
-    pcd.estimate_normals()
-    xyz = np.asarray(pcd.points)
-    normals = np.asarray(pcd.normals)
-    return xyz, normals
+    pcd.estimate_normals(normal_kdtree_pouints)
+    return pcd
 
 def load_bunny_example():
     bunny_path = Path(__file__).parent.parent / "assets" / "bunny.ply"
