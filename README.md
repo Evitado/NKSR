@@ -1,5 +1,8 @@
 # Neural Kernel Surface Reconstruction
 
+**To run :
+```python3 examples/evitado.py --help```
+
 ![NKSR](assets/teaser.png)
 
 **Neural Kernel Surface Reconstruction**<br>

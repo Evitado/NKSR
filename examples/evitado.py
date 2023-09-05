@@ -25,8 +25,14 @@ def get_device():
 
 @app.command()
 def main(
-    filename: Annotated[Path, typer.Argument()],
-    device: Annotated[str, typer.Argument(default_factory=get_device)],
+    filename: Annotated[Path, typer.Argument(help="provide path to filename")],
+    device: Annotated[
+        str,
+        typer.Argument(
+            default_factory=get_device,
+            help="chooses cuda by default if availble, else cpu, can also mention custom device name in terminal",
+        ),
+    ],
     detail_level: float = typer.Option(
         1.0,
         "--detail_level",
@@ -52,9 +58,7 @@ def main(
     input_xyz = torch.from_numpy(np.asarray(pcd.points)).float().to(device)
     input_normal = torch.from_numpy(np.asarray(pcd.normals)).float().to(device)
     reconstructor = nksr.Reconstructor(device)
-    field = reconstructor.reconstruct(
-        input_xyz, input_normal, detail_level=detail_level
-    )
+    field = reconstructor.reconstruct(input_xyz, input_normal, detail_level=detail_level)
     mesh = field.extract_dual_mesh(mise_iter=1)
 
     if visualize:
